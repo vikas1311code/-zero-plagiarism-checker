@@ -1,0 +1,67 @@
+{
+  "name": "zero-plagiarism-checker",
+  "productName": "ZERO",
+  "version": "1.0.0",
+  "description": "ZERO — Advanced Plagiarism Detection System",
+  "main": "main.js",
+  "author": "Vikas Pandey",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "better-sqlite3": "^9.4.0",
+    "keytar": "^7.9.0",
+    "mammoth": "^1.6.0",
+    "natural": "^6.10.0",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.vikas.zero",
+    "productName": "ZERO",
+    "copyright": "Copyright 2026 Vikas Pandey",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "corpus/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ZERO"
+    },
+    "portable": {
+      "artifactName": "ZERO-portable.exe"
+    }
+  }
+}

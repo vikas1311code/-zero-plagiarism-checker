@@ -1,0 +1,9 @@
+Machine learning is a method of data analysis that automates analytical model building. It is based on the idea that systems can learn from data, identify patterns and make decisions with minimal human intervention.
+
+Machine learning algorithms are trained using large sets of data and they learn from experience. The more data these algorithms are exposed to, the better they perform.
+
+Supervised learning is a type of machine learning where the model is trained on labeled data. The algorithm learns to map input features to output labels.
+
+Neural networks are a series of algorithms that mimic the operations of a human brain to recognize relationships between vast amounts of data. They are used in deep learning applications.
+
+Deep learning uses neural networks with many layers to learn hierarchical representations of data. It has achieved remarkable results in image recognition, natural language processing, and speech recognition.

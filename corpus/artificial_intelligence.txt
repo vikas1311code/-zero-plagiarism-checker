@@ -1,0 +1,7 @@
+Artificial intelligence refers to the simulation of human intelligence in machines that are programmed to think like humans and mimic their actions. The term may also be applied to any machine that exhibits traits associated with a human mind such as learning and problem-solving.
+
+Natural language processing is a branch of artificial intelligence that deals with the interaction between computers and humans using the natural language. The ultimate objective of NLP is to read, decipher, understand, and make sense of human languages.
+
+Computer vision is a field of artificial intelligence that trains computers to interpret and understand the visual world. Using digital images from cameras and videos and deep learning models, machines can accurately identify and classify objects.
+
+Robotics is a branch of engineering and science that includes the conception, design, manufacture and operation of robots. Robots are increasingly used in manufacturing, healthcare, and education.

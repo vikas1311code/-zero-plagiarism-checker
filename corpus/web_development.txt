@@ -1,0 +1,9 @@
+JavaScript is a scripting language that enables you to create dynamically updating content, control multimedia, animate images, and much more. It is a core technology of the World Wide Web.
+
+Electron.js is a framework for building cross-platform desktop applications using JavaScript, HTML, and CSS. It uses Chromium and Node.js so you can build your app with web technologies.
+
+React is a JavaScript library for building user interfaces. It allows developers to create large web applications that can change data without reloading the page.
+
+Node.js is an open-source, cross-platform JavaScript runtime environment that executes JavaScript code outside a web browser. It is designed to build scalable network applications.
+
+HTML stands for HyperText Markup Language. It is the standard markup language for creating web pages and web applications. CSS is used to describe the presentation of a document written in HTML.

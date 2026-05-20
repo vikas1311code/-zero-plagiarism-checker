@@ -1,0 +1,9 @@
+A computer algorithm is a finite sequence of well-defined instructions used to solve a class of specific problems or to perform a computation. Algorithms are essential to the way computers process data.
+
+Data structures are a way of organizing and storing data in a computer so that it can be accessed and modified efficiently. Common data structures include arrays, linked lists, stacks, queues, trees and graphs.
+
+Software engineering is the systematic application of engineering approaches to the development of software. It includes designing, developing, testing, and maintaining software systems.
+
+Database management systems are software systems used to store, retrieve, and run queries on data. A DBMS serves as an interface between the database and its end users or programs.
+
+Object-oriented programming is a programming paradigm that relies on the concept of classes and objects. It is used to structure a software program into simple, reusable pieces of code called classes.

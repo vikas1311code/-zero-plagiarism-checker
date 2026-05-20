@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg0: #080810; --bg1: #0f0f1a; --bg2: #161624; --bg3: #1e1e30;
+  --b1: rgba(255,255,255,0.06); --b2: rgba(255,255,255,0.12);
+  --t1: #ededf5; --t2: #7878a0; --t3: #404060;
+  --red: #ff3d5a;  --rb: rgba(255,61,90,0.09);  --rbd: rgba(255,61,90,0.28);
+  --amb: #ffb020;  --ab: rgba(255,176,32,0.09); --abd: rgba(255,176,32,0.28);
+  --grn: #00e096;  --gb: rgba(0,224,150,0.07);  --gbd: rgba(0,224,150,0.24);
+  --blue: #4d8fff; --bbl: rgba(77,143,255,0.09);
+  --acc: #7c6aff;  --acc2: #a855f7;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg0);
+  color: var(--t1);
+  border-radius: 16px;
+  border: 1px solid var(--b2);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────────────────── */
+.hdr {
+  background: var(--bg1);
+  border-bottom: 1px solid var(--b1);
+  padding: 0 14px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  -webkit-app-region: drag;
+  z-index: 10;
+}
+.logo { display: flex; align-items: center; gap: 0; }
+.logo-z {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 5px;
+  background: linear-gradient(135deg, var(--acc), var(--acc2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.logo-sub {
+  font-size: .46rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--t3);
+  text-transform: uppercase;
+  display: block;
+  margin-top: 1px;
+}
+.hdr-r { display: flex; gap: 6px; align-items: center; -webkit-app-region: no-drag; }
+.dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  border: none; cursor: pointer; flex-shrink: 0;
+  transition: opacity .2s;
+}
+.dot:hover { opacity: .7; }
+.hpill {
+  font-size: .52rem; padding: 3px 8px; border-radius: 10px;
+  border: 1px solid; font-family: var(--sans); font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.hpill-j  { background: var(--ab);  border-color: var(--abd); color: var(--amb); }
+.hpill-s  { background: var(--gb);  border-color: var(--gbd); color: var(--grn); }
+.hpill-tr { background: var(--bg2); border-color: var(--b2);  color: var(--t3);  }
+.hpill-key {
+  background: rgba(124,106,255,0.12);
+  border-color: rgba(124,106,255,0.35);
+  color: var(--acc);
+  display: flex; align-items: center; gap: 4px;
+}
+.hpill-key:hover { background: rgba(124,106,255,0.22); }
+.key-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--t3); flex-shrink: 0; transition: background .3s;
+}
+.key-dot.active { background: var(--grn); box-shadow: 0 0 5px var(--grn); }
+
+/* ── TABS ───────────────────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--b1);
+  flex-shrink: 0;
+  overflow-x: auto;
+  -webkit-app-region: no-drag;
+  z-index: 10;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0; padding: 9px 12px;
+  font-size: .53rem; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; cursor: pointer;
+  color: var(--t3); border-bottom: 2px solid transparent;
+  transition: all .2s; white-space: nowrap;
+}
+.tab:hover { color: var(--t2); }
+.tab.active { color: var(--t1); border-bottom-color: var(--acc); }
+.tn {
+  display: inline-block; background: var(--red); color: #fff;
+  border-radius: 8px; font-size: .44rem; padding: 1px 5px;
+  margin-left: 3px; vertical-align: middle;
+}
+
+/* ── VIEWS ──────────────────────────────────────────────────────────────── */
+.view {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 13px;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+.view.active { display: flex; }
+.view::-webkit-scrollbar { width: 4px; }
+.view::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+/* ── SCORE RING ─────────────────────────────────────────────────────────── */
+.score-card {
+  background: var(--bg2); border: 1px solid var(--b1);
+  border-radius: 14px; padding: 15px;
+  display: flex; align-items: center; gap: 16px;
+}
+.ring-w { position: relative; width: 76px; height: 76px; flex-shrink: 0; }
+.ring-svg { width: 76px; height: 76px; transform: rotate(-90deg); }
+.ring-track { fill: none; stroke: var(--bg3); stroke-width: 6; }
+.ring-fill {
+  fill: none; stroke-width: 6; stroke-linecap: round;
+  stroke-dasharray: 196; stroke-dashoffset: 196;
+  transition: stroke-dashoffset .8s cubic-bezier(.4,0,.2,1), stroke .4s;
+}
+.ring-n {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--mono); font-size: 1rem; font-weight: 600;
+  transition: color .4s;
+}
+.s-meta { flex: 1; min-width: 0; }
+.s-stat { font-size: .82rem; font-weight: 700; transition: color .4s; }
+.s-sub  { font-size: .63rem; color: var(--t3); margin-top: 4px; }
+.s-bw   { margin-top: 9px; background: var(--bg3); border-radius: 3px; height: 4px; overflow: hidden; }
+.s-b    { height: 4px; border-radius: 3px; width: 0%; transition: width .8s cubic-bezier(.4,0,.2,1), background .4s; }
+
+/* ── BEFORE/AFTER COMPARE ───────────────────────────────────────────────── */
+.cmp-card {
+  background: var(--bg2); border: 1px solid var(--b1);
+  border-radius: 14px; padding: 14px;
+  display: none; animation: up .4s ease both;
+}
+.cmp-card.show { display: block; }
+.cmp-bars { display: flex; gap: 12px; align-items: flex-end; height: 90px; margin: 10px 0 8px; }
+.cmp-col  { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.cmp-bw   {
+  width: 100%; flex: 1; background: var(--bg3);
+  border-radius: 6px 6px 0 0; position: relative; overflow: hidden; min-height: 8px;
+}
+.cmp-bf {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  border-radius: 6px 6px 0 0;
+  transition: height .8s cubic-bezier(.4,0,.2,1); height: 0%;
+}
+.cmp-pct { font-family: var(--mono); font-size: .86rem; font-weight: 700; }
+.cmp-lbl { font-size: .58rem; color: var(--t3); text-align: center; }
+.cmp-mid { display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 24px; gap: 5px; }
+.cmp-diff { font-family: var(--mono); font-size: .76rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+.cmp-ins  { font-size: .64rem; color: var(--t2); text-align: center; line-height: 1.7; border-top: 1px solid var(--b1); padding-top: 8px; }
+
+/* ── BUTTONS ────────────────────────────────────────────────────────────── */
+.btn-row { display: flex; gap: 7px; }
+.btn {
+  flex: 1; padding: 10px 8px; border-radius: 9px; border: none;
+  font-family: var(--sans); font-size: .63rem; font-weight: 700;
+  letter-spacing: .8px; text-transform: uppercase; cursor: pointer;
+  transition: all .18s; display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.btn:hover   { transform: translateY(-1px); filter: brightness(1.1); }
+.btn:active  { transform: translateY(0); }
+.btn-pri     { background: var(--acc); color: #fff; }
+.btn-ghost   { background: var(--bg2); border: 1px solid var(--b2); color: var(--t2); }
+.btn-ghost:hover { background: var(--bg3); color: var(--t1); }
+.btn-ghost:disabled { opacity: .35; cursor: not-allowed; transform: none; filter: none; }
+.btn-grn     { background: var(--gb);  border: 1px solid var(--gbd); color: var(--grn); }
+.btn-grn:hover { background: rgba(0,224,150,.15); }
+.btn-red     { background: var(--rb);  border: 1px solid var(--rbd); color: var(--red); }
+.btn-sm {
+  padding: 6px 11px; font-size: .58rem; border-radius: 7px;
+  border: 1px solid var(--b1); background: var(--bg2); color: var(--t2);
+  cursor: pointer; font-family: var(--sans); font-weight: 600; transition: all .15s;
+}
+.btn-sm:hover { color: var(--t1); border-color: var(--b2); }
+
+/* ── LOADING PILL ───────────────────────────────────────────────────────── */
+.spin-p {
+  display: none; align-items: center; justify-content: center; gap: 8px;
+  background: var(--bbl); border: 1px solid rgba(77,143,255,.2);
+  border-radius: 9px; padding: 9px 13px;
+  font-size: .65rem; color: var(--blue); font-weight: 600;
+}
+.spin-p.show { display: flex; }
+.spin {
+  width: 12px; height: 12px;
+  border: 2px solid rgba(77,143,255,.3); border-top-color: var(--blue);
+  border-radius: 50%; animation: sp .7s linear infinite;
+}
+@keyframes sp { to { transform: rotate(360deg); } }
+@keyframes up { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ── SECTION LABEL ──────────────────────────────────────────────────────── */
+.sec {
+  font-size: .56rem; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--t3);
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+/* ── SENTENCE LIST ──────────────────────────────────────────────────────── */
+.sent-list { display: flex; flex-direction: column; gap: 5px; }
+.sent-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 9px 11px; border-radius: 8px;
+  border-left: 3px solid transparent;
+  font-size: .71rem; line-height: 1.55;
+  cursor: pointer; animation: up .3s ease both;
+  transition: filter .15s;
+}
+.sent-row:hover { filter: brightness(1.2); }
+.sent-row.high { background: var(--rb); border-color: var(--red); }
+.sent-row.med  { background: var(--ab); border-color: var(--amb); }
+.sent-row.low  { background: var(--gb); border-color: var(--grn); }
+.sent-txt { flex: 1; color: var(--t1); }
+.bdg {
+  flex-shrink: 0; font-family: var(--mono); font-size: .6rem; font-weight: 700;
+  padding: 2px 6px; border-radius: 4px; margin-top: 1px;
+}
+.bdg.high { background: var(--rbd); color: var(--red); }
+.bdg.med  { background: var(--abd); color: var(--amb); }
+.bdg.low  { background: var(--gbd); color: var(--grn); }
+
+/* ── SOURCE CARD ────────────────────────────────────────────────────────── */
+.src-card { display: none; background: var(--bbl); border: 1px solid rgba(77,143,255,.2); border-radius: 11px; padding: 12px 14px; }
+.src-card.show { display: block; }
+.src-ttl { font-size: .72rem; color: var(--t1); font-weight: 600; margin-bottom: 4px; }
+.src-lnk { font-size: .62rem; color: var(--blue); cursor: pointer; word-break: break-all; }
+.src-lnk:hover { text-decoration: underline; }
+.src-more { margin-top: 8px; border-top: 1px solid var(--b1); padding-top: 8px; }
+.src-item { font-size: .6rem; color: var(--t3); padding: 3px 0; cursor: pointer; }
+.src-item:hover { color: var(--blue); }
+
+/* ── PARAPHRASE ─────────────────────────────────────────────────────────── */
+.para-card { background: var(--bg2); border: 1px solid var(--b1); border-radius: 11px; padding: 12px; }
+.para-bw   { background: var(--bg3); border-radius: 4px; height: 7px; overflow: hidden; margin: 8px 0; }
+.para-b    { height: 7px; border-radius: 4px; transition: width .8s cubic-bezier(.4,0,.2,1); }
+.kw-chip   {
+  font-size: .56rem; padding: 2px 8px; border-radius: 10px;
+  background: var(--ab); border: 1px solid var(--abd); color: var(--amb);
+  font-family: var(--mono);
+}
+
+/* ── CITATION CARD ──────────────────────────────────────────────────────── */
+.cite-card { background: var(--bg2); border: 1px solid var(--b1); border-radius: 11px; padding: 13px; display: none; }
+.cite-card.show { display: block; }
+.cite-tabs { display: flex; gap: 5px; margin-bottom: 10px; align-items: center; }
+.cite-tab {
+  padding: 5px 11px; border-radius: 7px; font-size: .57rem; font-weight: 700;
+  cursor: pointer; border: 1px solid var(--b1); background: var(--bg3); color: var(--t3);
+  transition: all .15s;
+}
+.cite-tab.active { background: var(--acc); border-color: var(--acc); color: #fff; }
+.cite-help { position: relative; margin-left: auto; cursor: help; }
+.cite-qmark {
+  width: 17px; height: 17px; border-radius: 50%; background: var(--bg3);
+  border: 1px solid var(--b2); color: var(--t2); font-size: .6rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.cite-tip {
+  display: none; position: absolute; bottom: calc(100% + 8px); right: 0;
+  width: 250px; background: var(--bg1); border: 1px solid var(--b2);
+  border-radius: 12px; padding: 13px; font-size: .62rem; color: var(--t2);
+  line-height: 1.75; z-index: 100; pointer-events: none;
+}
+.cite-help:hover .cite-tip { display: block; }
+.cite-tip b { color: var(--t1); }
+.cite-txt {
+  font-size: .63rem; color: var(--t2); line-height: 1.8;
+  font-family: var(--mono); background: var(--bg3); border-radius: 7px;
+  padding: 10px 12px; margin-bottom: 9px; user-select: all;
+  white-space: pre-wrap; word-break: break-all;
+}
+.cite-copy {
+  font-size: .57rem; padding: 5px 11px; border-radius: 6px;
+  border: 1px solid var(--gbd); background: var(--gb); color: var(--grn);
+  cursor: pointer; font-family: var(--sans); font-weight: 700; transition: all .15s;
+}
+.cite-copy:hover { background: rgba(0,224,150,.18); }
+
+/* ── AI REWRITE ─────────────────────────────────────────────────────────── */
+.rw-panel {
+  background: rgba(124,106,255,.13); border: 2px solid rgba(124,106,255,.55);
+  border-radius: 11px; padding: 14px; display: none; animation: up .4s ease both;
+  box-shadow: 0 0 24px rgba(124,106,255,.18);
+}
+.rw-panel.show { display: block; }
+.rw-orig { font-size: .66rem; color: var(--t3); margin-bottom: 7px; line-height: 1.6; font-style: italic; }
+.rw-res  {
+  font-size: .7rem; color: var(--grn); line-height: 1.8;
+  background: var(--gb); border-radius: 7px; padding: 9px 11px;
+  border: 1px solid var(--gbd); display: none;
+}
+.rw-res.show { display: block; }
+
+/* ── DNA ────────────────────────────────────────────────────────────────── */
+.dna-card { background: var(--bg2); border: 1px solid var(--b1); border-radius: 14px; padding: 14px; animation: up .4s ease both; }
+.dna-top  { display: flex; align-items: center; gap: 13px; margin-bottom: 13px; }
+.dna-ring { position: relative; width: 58px; height: 58px; flex-shrink: 0; }
+.dna-ring svg { width: 58px; height: 58px; transform: rotate(-90deg); }
+.dna-ring-n {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  font-family: var(--mono); font-size: .82rem; font-weight: 700; color: var(--acc);
+}
+.dna-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; }
+.dna-m    { background: var(--bg3); border-radius: 8px; padding: 8px 10px; }
+.dna-ml   { font-size: .52rem; color: var(--t3); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 3px; }
+.dna-mv   { font-family: var(--mono); font-size: .8rem; font-weight: 700; color: var(--t1); }
+.dna-flag { background: var(--rb); border: 1px solid var(--rbd); border-radius: 8px; padding: 9px 11px; font-size: .65rem; color: var(--red); margin-top: 9px; display: none; }
+.dna-flag.show { display: block; }
+
+/* ── HEATMAP ────────────────────────────────────────────────────────────── */
+.hm-wrap {
+  background: var(--bg2); border: 1px solid var(--b1);
+  border-radius: 11px; padding: 14px;
+  font-size: .73rem; line-height: 2.1; word-break: break-word;
+}
+.hw1 { background: rgba(255,176,32,.15); border-radius: 3px; padding: 0 2px; }
+.hw2 { background: rgba(255,100,50,.25); border-radius: 3px; padding: 0 2px; color: #ffd0a0; }
+.hw3 { background: rgba(255,61,90,.35);  border-radius: 3px; padding: 0 2px; color: var(--red); cursor: pointer; }
+.hw3:hover { background: rgba(255,61,90,.5); }
+.hm-leg { display: flex; gap: 12px; margin-top: 9px; align-items: center; flex-wrap: wrap; }
+.hml    { display: flex; align-items: center; gap: 4px; font-size: .57rem; color: var(--t3); }
+.hml-b  { width: 11px; height: 11px; border-radius: 3px; }
+
+/* ── TIMELINE ───────────────────────────────────────────────────────────── */
+.tl-chart { display: flex; gap: 3px; align-items: flex-end; height: 54px; overflow-x: auto; padding-bottom: 2px; }
+.tl-chart::-webkit-scrollbar { height: 3px; }
+.tl-chart::-webkit-scrollbar-thumb { background: var(--bg3); }
+.tl-bar { flex-shrink: 0; width: 9px; border-radius: 3px 3px 0 0; cursor: pointer; transition: opacity .15s; }
+.tl-bar:hover { opacity: .65; }
+.tl-tip { font-size: .6rem; color: var(--t2); margin-top: 6px; min-height: 16px; text-align: center; }
+
+/* ── DIFF VIEW ──────────────────────────────────────────────────────────── */
+.diff-wrap {
+  display: none;
+  flex-direction: column;
+  background: var(--bg2);
+  border: 1px solid var(--b1);
+  border-radius: 11px;
+  overflow: hidden;
+  isolation: isolate;
+  position: relative;
+  z-index: 1;
+}
+.diff-wrap.show { display: flex; }
+.diff-hdr { display: flex; border-bottom: 1px solid var(--b1); background: var(--bg2); }
+.diff-ch  { flex: 1; padding: 8px 13px; font-size: .56rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--t3); display: flex; align-items: center; gap: 6px; }
+.diff-ch:first-child { border-right: 1px solid var(--b1); }
+.diff-dot { width: 7px; height: 7px; border-radius: 50%; }
+.diff-body { display: flex; background: var(--bg2); }
+.diff-side {
+  flex: 1; padding: 13px;
+  font-size: .68rem; line-height: 1.8;
+  font-family: var(--mono); color: var(--t2);
+  white-space: pre-wrap; word-break: break-word;
+  max-height: 220px; overflow-y: auto;
+  background: var(--bg2);
+}
+.diff-side:first-child { border-right: 1px solid var(--b1); }
+.diff-side::-webkit-scrollbar { width: 3px; }
+.diff-side::-webkit-scrollbar-thumb { background: var(--bg3); }
+.dm { background: rgba(255,176,32,.18); border-radius: 3px; color: var(--amb); }
+.ds { background: rgba(255,61,90,.18);  border-radius: 3px; color: #ff9090; }
+
+/* ── HISTORY ────────────────────────────────────────────────────────────── */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-card  { background: var(--bg2); border: 1px solid var(--b1); border-radius: 11px; padding: 13px; animation: up .4s ease both; }
+.stat-lbl   { font-size: .54rem; color: var(--t3); letter-spacing: .8px; text-transform: uppercase; margin-bottom: 6px; }
+.stat-val   { font-family: var(--mono); font-size: 1.2rem; font-weight: 700; color: var(--t1); }
+.bar-chart  { display: flex; gap: 4px; align-items: flex-end; height: 46px; }
+.brc        { flex: 1; border-radius: 3px 3px 0 0; min-height: 4px; transition: height .4s; }
+.fpill      { padding: 4px 11px; border-radius: 18px; font-size: .56rem; font-weight: 700; cursor: pointer; border: 1px solid var(--b1); background: var(--bg2); color: var(--t3); transition: all .15s; }
+.fpill:hover { color: var(--t2); }
+.fpill.active { background: var(--acc); border-color: var(--acc); color: #fff; }
+.hist-item  { background: var(--bg2); border: 1px solid var(--b1); border-radius: 9px; padding: 10px 13px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid transparent; animation: up .3s ease both; }
+.hi-txt     { font-size: .69rem; color: var(--t2); margin-bottom: 2px; }
+.hi-tm      { font-size: .57rem; color: var(--t3); }
+.hi-sc      { font-family: var(--mono); font-size: .82rem; font-weight: 700; }
+
+/* ── FILE ───────────────────────────────────────────────────────────────── */
+.drop-zone {
+  border: 2px dashed var(--b2); border-radius: 14px; padding: 28px 16px;
+  text-align: center; cursor: pointer; transition: all .2s; background: var(--bg1);
+}
+.drop-zone:hover, .drop-zone.over { border-color: var(--acc); background: rgba(124,106,255,.06); }
+.fi-grid  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; margin-bottom: 10px; }
+.fi-item  { background: var(--bg3); border-radius: 7px; padding: 7px 9px; }
+.fi-l     { font-size: .52rem; color: var(--t3); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 3px; }
+.fi-v     { font-family: var(--mono); font-size: .76rem; font-weight: 700; }
+
+/* ── CORPUS ─────────────────────────────────────────────────────────────── */
+.corp-file { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--b1); font-size: .68rem; color: var(--t2); }
+.corp-file:last-child { border-bottom: none; }
+
+/* ── GENERIC ────────────────────────────────────────────────────────────── */
+.card   { background: var(--bg2); border: 1px solid var(--b1); border-radius: 11px; padding: 13px; }
+.empty  { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--t3); text-align: center; gap: 9px; padding: 28px; }
+.empty-ico { font-size: 2rem; opacity: .4; }
+.empty-txt { font-size: .72rem; line-height: 1.8; }
+.legend { display: flex; gap: 11px; flex-wrap: wrap; }
+.leg    { display: flex; align-items: center; gap: 4px; font-size: .6rem; color: var(--t3); }
+.leg-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ── API KEY MODAL ─────────────────────────────────────────────────────────
+   ═══════════════════════════════════════════════════════════════════════════ */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(8,8,16,0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  align-items: center; justify-content: center;
+  animation: fadein .2s ease both;
+}
+.modal-overlay.show { display: flex; }
+@keyframes fadein { from { opacity:0; } to { opacity:1; } }
+
+.modal-box {
+  width: 390px; max-width: calc(100vw - 32px);
+  background: var(--bg1);
+  border: 1px solid var(--b2);
+  border-radius: 18px;
+  overflow: hidden;
+  animation: slideup .25s cubic-bezier(.4,0,.2,1) both;
+  box-shadow: 0 24px 64px rgba(0,0,0,.6), 0 0 0 1px rgba(124,106,255,.1);
+}
+@keyframes slideup {
+  from { opacity:0; transform: translateY(16px) scale(.97); }
+  to   { opacity:1; transform: none; }
+}
+
+.modal-hdr {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--b1);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title {
+  display: flex; align-items: center; gap: 9px;
+}
+.modal-title-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: rgba(124,106,255,.15);
+  border: 1px solid rgba(124,106,255,.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem;
+}
+.modal-title-text {
+  font-size: .82rem; font-weight: 800; color: var(--t1);
+}
+.modal-title-sub {
+  font-size: .56rem; color: var(--t3); letter-spacing: .8px;
+  text-transform: uppercase; margin-top: 1px;
+}
+.modal-close {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: var(--bg3); border: 1px solid var(--b1);
+  color: var(--t3); cursor: pointer; font-size: .8rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.modal-close:hover { background: var(--rb); color: var(--red); border-color: var(--rbd); }
+
+.modal-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Key field group */
+.key-group { display: flex; flex-direction: column; gap: 7px; }
+.key-label {
+  display: flex; align-items: center; gap: 7px;
+}
+.key-label-icon {
+  width: 22px; height: 22px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem; flex-shrink: 0;
+}
+.key-label-icon.serper   { background: rgba(0,224,150,.12); border: 1px solid rgba(0,224,150,.25); }
+.key-label-icon.anthropic { background: rgba(124,106,255,.12); border: 1px solid rgba(124,106,255,.25); }
+.key-label-name {
+  font-size: .68rem; font-weight: 700; color: var(--t1); flex: 1;
+}
+.key-label-badge {
+  font-size: .5rem; font-weight: 700; padding: 2px 7px; border-radius: 8px;
+  letter-spacing: .5px; text-transform: uppercase;
+}
+.key-label-badge.configured { background: var(--gb); color: var(--grn); border: 1px solid var(--gbd); }
+.key-label-badge.missing    { background: var(--rb); color: var(--red); border: 1px solid var(--rbd); }
+
+.key-desc {
+  font-size: .6rem; color: var(--t3); line-height: 1.65; padding-left: 29px;
+}
+.key-desc a { color: var(--blue); cursor: pointer; text-decoration: underline; }
+
+.key-input-row { display: flex; gap: 6px; align-items: center; }
+.key-input {
+  flex: 1; background: var(--bg3);
+  border: 1px solid var(--b1);
+  border-radius: 8px; padding: 9px 12px;
+  font-family: var(--mono); font-size: .65rem; color: var(--t1);
+  outline: none; transition: border-color .2s;
+  letter-spacing: .5px;
+}
+.key-input:focus { border-color: var(--acc); }
+.key-input::placeholder { color: var(--t3); letter-spacing: 0; }
+.key-input.has-value { border-color: rgba(0,224,150,.3); }
+
+.key-toggle {
+  width: 30px; height: 30px; flex-shrink: 0;
+  background: var(--bg3); border: 1px solid var(--b1);
+  border-radius: 7px; cursor: pointer; color: var(--t3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; transition: all .15s;
+}
+.key-toggle:hover { color: var(--t1); border-color: var(--b2); }
+
+/* Status banner */
+.modal-status {
+  display: none;
+  padding: 9px 12px; border-radius: 8px;
+  font-size: .63rem; font-weight: 600;
+  align-items: center; gap: 7px;
+  animation: up .2s ease;
+}
+.modal-status.show { display: flex; }
+.modal-status.ok  { background: var(--gb); border: 1px solid var(--gbd); color: var(--grn); }
+.modal-status.err { background: var(--rb); border: 1px solid var(--rbd); color: var(--red); }
+
+/* Divider */
+.modal-divider {
+  height: 1px; background: var(--b1); margin: 0 -20px;
+}
+
+/* Action row */
+.modal-actions { display: flex; gap: 8px; padding: 14px 20px; background: var(--bg0); }
+.modal-btn {
+  flex: 1; padding: 10px; border-radius: 9px; border: none;
+  font-family: var(--sans); font-size: .63rem; font-weight: 700;
+  letter-spacing: .8px; text-transform: uppercase;
+  cursor: pointer; transition: all .18s;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.modal-btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+.modal-btn-save  { background: var(--acc); color: #fff; }
+.modal-btn-clear { background: var(--bg2); border: 1px solid var(--b2); color: var(--t3); }
+.modal-btn-clear:hover { color: var(--red); border-color: var(--rbd); background: var(--rb); }
+
+/* Info footer */
+.modal-info {
+  padding: 0 20px 16px;
+  font-size: .58rem; color: var(--t3); line-height: 1.7;
+  text-align: center;
+}
+.modal-info span { color: var(--t2); }
+
+/* No-key warning banner inside scan view */
+.nokey-warn {
+  display: none; background: var(--ab); border: 1px solid var(--abd);
+  border-radius: 10px; padding: 10px 13px;
+  font-size: .63rem; color: var(--amb); line-height: 1.7;
+  align-items: center; gap: 9px;
+}
+.nokey-warn.show { display: flex; }
+.nokey-warn-txt { flex: 1; }
+.nokey-setup-btn {
+  flex-shrink: 0; padding: 5px 11px; border-radius: 7px;
+  background: var(--abd); border: 1px solid rgba(255,176,32,.5);
+  color: var(--amb); font-size: .58rem; font-weight: 700;
+  cursor: pointer; font-family: var(--sans); white-space: nowrap;
+  transition: all .15s;
+}
+.nokey-setup-btn:hover { background: rgba(255,176,32,.35); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     API KEY MODAL
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="key-modal">
+  <div class="modal-box">
+
+    <div class="modal-hdr">
+      <div class="modal-title">
+        <div class="modal-title-icon">🔑</div>
+        <div>
+          <div class="modal-title-text">API Keys</div>
+          <div class="modal-title-sub">Stored locally · never shared</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeKeyModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Status banner -->
+      <div class="modal-status" id="modal-status"></div>
+
+      <!-- ── Serper Key ── -->
+      <div class="key-group">
+        <div class="key-label">
+          <div class="key-label-icon serper">🔍</div>
+          <div class="key-label-name">Serper API Key</div>
+          <div class="key-label-badge missing" id="serper-badge">Not set</div>
+        </div>
+        <div class="key-desc">
+          Powers <strong style="color:var(--t2)">Deep Web Scan</strong> — searches Google for matching content.
+          Get a free key at <a onclick="ipc('open-link','https://serper.dev')">serper.dev</a>
+          (2,500 free searches/month).
+        </div>
+        <div class="key-input-row">
+          <input class="key-input" id="serper-input" type="password"
+            placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            oninput="onKeyInput(this,'serper-badge')"
+            autocomplete="off" spellcheck="false"/>
+          <button class="key-toggle" id="serper-toggle" onclick="toggleVis('serper-input','serper-toggle')" title="Show / hide">👁</button>
+        </div>
+      </div>
+
+      <div class="modal-divider"></div>
+
+      <!-- ── Anthropic Key ── -->
+      <div class="key-group">
+        <div class="key-label">
+          <div class="key-label-icon anthropic">✨</div>
+          <div class="key-label-name">Anthropic API Key</div>
+          <div class="key-label-badge missing" id="anthropic-badge">Not set</div>
+        </div>
+        <div class="key-desc">
+          Powers <strong style="color:var(--t2)">AI Rewrite</strong> — rewrites flagged sentences using Claude.
+          Get your key at <a onclick="ipc('open-link','https://console.anthropic.com')">console.anthropic.com</a>.
+          Optional — rule-based rewrite used if not set.
+        </div>
+        <div class="key-input-row">
+          <input class="key-input" id="anthropic-input" type="password"
+            placeholder="sk-ant-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            oninput="onKeyInput(this,'anthropic-badge')"
+            autocomplete="off" spellcheck="false"/>
+          <button class="key-toggle" id="anthropic-toggle" onclick="toggleVis('anthropic-input','anthropic-toggle')" title="Show / hide">👁</button>
+        </div>
+      </div>
+
+    </div><!-- /modal-body -->
+
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-save"  onclick="saveKeys()">💾 Save Keys</button>
+      <button class="modal-btn modal-btn-clear" onclick="clearKeys()">🗑 Clear</button>
+    </div>
+
+    <div class="modal-info">
+      Keys are saved to <span>your local app data folder</span> and never sent anywhere except their respective APIs.
+    </div>
+
+  </div><!-- /modal-box -->
+</div><!-- /modal-overlay -->
+
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo">
+    <div>
+      <div class="logo-z">ZERO</div>
+      <span class="logo-sub">Plagiarism Checker</span>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <div id="db-pill" class="hpill hpill-j">JSON</div>
+    <!-- API Key button -->
+    <div class="hpill hpill-key" onclick="openKeyModal()" title="Manage API Keys">
+      <div class="key-dot" id="key-dot"></div>
+      Keys
+    </div>
+    <div class="hpill hpill-tr" onclick="ipc('hide-tray')" title="Hide to tray">▼</div>
+    <button class="dot" style="background:#ffbd2e" onclick="ipc('minimize')"></button>
+    <button class="dot" style="background:#ff3d5a" onclick="ipc('quit')"></button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" data-tab="scan"   onclick="ST(this)">Scan</div>
+  <div class="tab"        data-tab="dna"    onclick="ST(this)">🧬 DNA</div>
+  <div class="tab"        data-tab="heat"   onclick="ST(this)">🌡 Heat</div>
+  <div class="tab"        data-tab="file"   onclick="ST(this)">File</div>
+  <div class="tab"        data-tab="diff"   onclick="ST(this)">Diff</div>
+  <div class="tab"        data-tab="hist"   onclick="ST(this)">History<span class="tn" id="hn">0</span></div>
+  <div class="tab"        data-tab="corpus" onclick="ST(this)">Corpus</div>
+</div>
+
+<!-- ═══════════ SCAN ═══════════ -->
+<div class="view active" id="v-scan">
+
+  <!-- No-key warning banner -->
+  <div class="nokey-warn" id="nokey-warn">
+    <div>⚠</div>
+    <div class="nokey-warn-txt">
+      <strong>Serper API key not set.</strong> Deep Web Scan is disabled.
+      Add your key to enable online plagiarism detection.
+    </div>
+    <button class="nokey-setup-btn" onclick="openKeyModal()">Set Up Keys</button>
+  </div>
+
+  <div class="score-card">
+    <div class="ring-w">
+      <svg class="ring-svg" viewBox="0 0 76 76">
+        <circle class="ring-track" cx="38" cy="38" r="31"/>
+        <circle class="ring-fill" id="ring-fill" cx="38" cy="38" r="31"/>
+      </svg>
+      <div class="ring-n" id="ring-n">–</div>
+    </div>
+    <div class="s-meta">
+      <div class="s-stat" id="s-stat">Waiting for text…</div>
+      <div class="s-sub"  id="s-sub">Copy any text to begin scanning</div>
+      <div class="s-bw"><div class="s-b" id="s-b"></div></div>
+    </div>
+  </div>
+
+  <!-- Before / After Compare -->
+  <div class="cmp-card" id="cmp-card">
+    <div class="sec">
+      <span>Before vs After Web Scan</span>
+      <span id="cmp-verdict" style="font-size:.63rem;font-weight:700"></span>
+    </div>
+    <div class="cmp-bars">
+      <div class="cmp-col">
+        <div class="cmp-bw"><div class="cmp-bf" id="cmp-l"></div></div>
+        <div class="cmp-pct" id="cmp-lp">–</div>
+        <div class="cmp-lbl">Local</div>
+      </div>
+      <div class="cmp-mid">
+        <span style="font-size:1rem;color:var(--t3)">→</span>
+        <div class="cmp-diff" id="cmp-diff">–</div>
+      </div>
+      <div class="cmp-col">
+        <div class="cmp-bw"><div class="cmp-bf" id="cmp-w"></div></div>
+        <div class="cmp-pct" id="cmp-wp">–</div>
+        <div class="cmp-lbl">Web</div>
+      </div>
+    </div>
+    <div class="cmp-ins" id="cmp-ins"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-pri" id="scan-btn">🔍 Deep Web Scan</button>
+    <button class="btn btn-ghost" id="diff-btn" onclick="goToDiff()" disabled>⇄ Diff</button>
+    <button class="btn btn-grn"   id="rep-btn"  onclick="exportReport()" disabled>⬇ Report</button>
+  </div>
+  <div class="spin-p" id="scan-load"><div class="spin"></div>Searching the web…</div>
+
+  <!-- Source Card -->
+  <div class="src-card" id="src-card">
+    <div class="src-ttl" id="src-ttl"></div>
+    <div class="src-lnk" id="src-lnk" onclick="openSrcLink()"></div>
+    <div class="src-more" id="src-more"></div>
+  </div>
+
+  <!-- Paraphrase Detector -->
+  <div class="para-card" id="para-card" style="display:none">
+    <div class="sec">
+      <span>Paraphrase Risk</span>
+      <span id="para-pct" style="font-family:var(--mono);font-size:.78rem;font-weight:700"></span>
+    </div>
+    <div class="para-bw"><div class="para-b" id="para-b"></div></div>
+    <div id="para-msg" style="font-size:.63rem;color:var(--t2);margin-bottom:6px"></div>
+    <div id="para-kws" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+  </div>
+
+  <!-- Citation Generator -->
+  <div class="cite-card" id="cite-card">
+    <div class="sec" style="margin-bottom:9px">
+      <span>Auto Citations</span>
+      <div class="cite-help">
+        <div class="cite-qmark">?</div>
+        <div class="cite-tip">
+          <b>APA 7</b> — American Psychological Association.<br>Used in psychology, education &amp; science.<br><br>
+          <b>MLA 9</b> — Modern Language Association.<br>Used in humanities, literature &amp; arts.<br><br>
+          <b>Chicago</b> — Chicago Manual of Style.<br>Used in history, publishing &amp; social sciences.<br><br>
+          <span style="color:var(--t3)">Copy whichever format your institution requires.</span>
+        </div>
+      </div>
+    </div>
+    <div class="cite-tabs">
+      <div class="cite-tab active" onclick="setCite('apa',this)">APA 7</div>
+      <div class="cite-tab"       onclick="setCite('mla',this)">MLA 9</div>
+      <div class="cite-tab"       onclick="setCite('chicago',this)">Chicago</div>
+    </div>
+    <div class="cite-txt" id="cite-txt"></div>
+    <button class="cite-copy" onclick="copyCite()">Copy Citation</button>
+  </div>
+
+  <!-- Sentence Analysis -->
+  <div id="sent-panel" style="display:none">
+    <div class="sec">
+      <span>Sentence Analysis</span>
+      <div class="legend">
+        <div class="leg"><div class="leg-dot" style="background:var(--red)"></div>High</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--amb)"></div>Mid</div>
+        <div class="leg"><div class="leg-dot" style="background:var(--grn)"></div>Clean</div>
+      </div>
+    </div>
+    <div class="sent-list" id="sent-list"></div>
+  </div>
+
+  <!-- AI Rewrite -->
+  <div class="rw-panel" id="rw-panel">
+    <div class="sec" style="margin-bottom:7px">
+      <span>✨ AI Rewrite</span>
+      <button class="btn-sm" onclick="document.getElementById('rw-panel').classList.remove('show')">✕</button>
+    </div>
+    <div class="rw-orig" id="rw-orig"></div>
+    <div class="spin-p" id="rw-load"><div class="spin"></div>Rewriting…</div>
+    <div class="rw-res"  id="rw-res"></div>
+    <div class="btn-row" id="rw-btns" style="margin-top:9px;display:none">
+      <button class="btn btn-grn"   style="font-size:.6rem" onclick="copyRW()">Copy</button>
+      <button class="btn btn-ghost" style="font-size:.6rem" onclick="reqRW(curRWSent)">Try Again</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-sm" onclick="ipc('open-corpus')">📂 Corpus</button>
+    <button class="btn-sm" onclick="ipc('reload-corpus')">🔄 Reload</button>
+  </div>
+  <div id="corp-stat" style="font-size:.57rem;color:var(--t3);text-align:center"></div>
+</div>
+
+<!-- ═══════════ DNA ═══════════ -->
+<div class="view" id="v-dna">
+  <div class="dna-card">
+    <div class="sec" style="margin-bottom:11px"><span>Writing DNA Fingerprint</span></div>
+    <div class="dna-top">
+      <div class="dna-ring">
+        <svg viewBox="0 0 58 58">
+          <circle fill="none" stroke="var(--bg3)" stroke-width="5" cx="29" cy="29" r="23"/>
+          <circle id="dna-rf" fill="none" stroke="var(--acc)" stroke-width="5"
+            stroke-linecap="round" stroke-dasharray="145" stroke-dashoffset="145"
+            cx="29" cy="29" r="23"
+            style="transform-origin:center;transform:rotate(-90deg);transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)"/>
+        </svg>
+        <div class="dna-ring-n" id="dna-n">–</div>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:.76rem;font-weight:700;color:var(--t1);margin-bottom:3px">Uniqueness Score</div>
+        <div id="dna-desc" style="font-size:.62rem;color:var(--t3);line-height:1.65">Copy text to analyze your writing style.</div>
+      </div>
+    </div>
+    <div class="dna-grid">
+      <div class="dna-m"><div class="dna-ml">Avg Sentence</div><div class="dna-mv" id="dm-sl">–</div></div>
+      <div class="dna-m"><div class="dna-ml">Vocab Richness</div><div class="dna-mv" id="dm-ttr">–</div></div>
+      <div class="dna-m"><div class="dna-ml">Passive Voice</div><div class="dna-mv" id="dm-pv">–</div></div>
+      <div class="dna-m"><div class="dna-ml">Avg Word Len</div><div class="dna-mv" id="dm-wl">–</div></div>
+      <div class="dna-m"><div class="dna-ml">Punct Density</div><div class="dna-mv" id="dm-pd">–</div></div>
+      <div class="dna-m"><div class="dna-ml">Transitions</div><div class="dna-mv" id="dm-tr">–</div></div>
+    </div>
+    <div class="dna-flag" id="dna-flag">⚠ High passive voice or low vocabulary richness detected — this text may not match your usual writing style.</div>
+  </div>
+
+  <div class="card">
+    <div class="sec" style="margin-bottom:8px">
+      <span>Originality Timeline</span>
+      <span id="tl-info" style="font-size:.58rem;color:var(--t3)"></span>
+    </div>
+    <div class="tl-chart" id="tl-chart"></div>
+    <div class="tl-tip"   id="tl-tip">Hover a bar to preview the sentence</div>
+  </div>
+
+  <div class="card" style="font-size:.65rem;color:var(--t2);line-height:1.85">
+    <div class="sec" style="margin-bottom:8px">What is Writing DNA?</div>
+    Your writing has a unique fingerprint — sentence length, vocabulary richness, passive voice %, punctuation patterns.
+    ZERO analyzes these patterns to detect when copied text doesn't match <em>your</em> personal style.
+    <span style="color:var(--grn)">Higher score = more original and distinctive writing.</span>
+  </div>
+</div>
+
+<!-- ═══════════ HEATMAP ═══════════ -->
+<div class="view" id="v-heat">
+  <div class="card">
+    <div class="sec" style="margin-bottom:10px"><span>Word Risk Heatmap</span></div>
+    <div class="hm-wrap" id="hm-wrap">
+      <span style="color:var(--t3);font-size:.67rem">Copy any text — the heatmap will appear here.</span>
+    </div>
+    <div class="hm-leg">
+      <div class="hml"><div class="hml-b" style="background:var(--bg3);border:1px solid var(--b1)"></div>Clean</div>
+      <div class="hml"><div class="hml-b" style="background:rgba(255,176,32,.15)"></div>Low</div>
+      <div class="hml"><div class="hml-b" style="background:rgba(255,100,50,.25)"></div>Medium</div>
+      <div class="hml"><div class="hml-b" style="background:rgba(255,61,90,.35)"></div>High — click to rewrite</div>
+    </div>
+  </div>
+  <div class="card" style="font-size:.65rem;color:var(--t2);line-height:1.85">
+    <div class="sec" style="margin-bottom:8px">How to read this</div>
+    Every word is colored by how often it appears in reference corpus texts.
+    <span style="color:var(--red)">Red words</span> are high-risk corpus matches.
+    <span style="color:var(--amb)">Amber</span> is moderate risk. Click any red word to get an instant rewrite suggestion.
+  </div>
+</div>
+
+<!-- ═══════════ FILE ═══════════ -->
+<div class="view" id="v-file">
+  <div class="drop-zone" id="drop-zone" onclick="pickFile()"
+    ondragover="event.preventDefault();this.classList.add('over')"
+    ondragleave="this.classList.remove('over')"
+    ondrop="fileDrop(event)">
+    <div style="font-size:1.8rem;margin-bottom:9px;opacity:.5">📄</div>
+    <div style="font-size:.76rem;font-weight:700;color:var(--t2);margin-bottom:4px">Drop PDF, DOCX or TXT here</div>
+    <div style="font-size:.62rem;color:var(--t3)">or click to browse — scanned instantly</div>
+  </div>
+  <div class="spin-p" id="file-load"><div class="spin"></div>Scanning file…</div>
+  <div id="file-result"></div>
+
+  <div class="card">
+    <div class="sec" style="margin-bottom:9px">Batch Folder Scan</div>
+    <div style="font-size:.66rem;color:var(--t2);margin-bottom:9px;line-height:1.8">
+      Scan all PDF, DOCX and TXT files in a folder — results ranked by risk.
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="pickFolder()">📁 Choose Folder</button>
+  </div>
+  <div class="spin-p" id="batch-load"><div class="spin"></div>Batch scanning…</div>
+  <div id="batch-result"></div>
+</div>
+
+<!-- ═══════════ DIFF ═══════════ -->
+<div class="view" id="v-diff">
+  <div class="empty" id="diff-empty">
+    <div class="empty-ico">⇄</div>
+    <div class="empty-txt">Run Deep Web Scan first,<br>then come back here to see the comparison.</div>
+  </div>
+  <div class="diff-wrap" id="diff-wrap">
+    <div class="diff-hdr">
+      <div class="diff-ch"><div class="diff-dot" style="background:var(--amb)"></div>Your text</div>
+      <div class="diff-ch"><div class="diff-dot" style="background:var(--red)"></div>Web source</div>
+    </div>
+    <div class="diff-body">
+      <div class="diff-side" id="diff-l"></div>
+      <div class="diff-side" id="diff-r"></div>
+    </div>
+  </div>
+  <div id="diff-sents" style="display:none">
+    <div class="sec" style="margin-top:4px">Risk Breakdown</div>
+    <div class="sent-list" id="diff-sl"></div>
+  </div>
+</div>
+
+<!-- ═══════════ HISTORY ═══════════ -->
+<div class="view" id="v-hist">
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-lbl">Total Scans</div><div class="stat-val" id="st-tot">0</div><div style="font-size:.57rem;color:var(--t3);margin-top:3px">all time</div></div>
+    <div class="stat-card"><div class="stat-lbl">Avg Score</div><div class="stat-val"   id="st-avg">0%</div><div style="font-size:.57rem;color:var(--t3);margin-top:3px">plagiarism</div></div>
+    <div class="stat-card"><div class="stat-lbl">High Risk</div><div class="stat-val"   id="st-hi"  style="color:var(--red)">0</div><div style="font-size:.57rem;color:var(--t3);margin-top:3px">above 50%</div></div>
+    <div class="stat-card"><div class="stat-lbl">Clean</div><div class="stat-val"       id="st-cl"  style="color:var(--grn)">0</div><div style="font-size:.57rem;color:var(--t3);margin-top:3px">below 15%</div></div>
+  </div>
+  <div class="card">
+    <div class="sec">Score Trend</div>
+    <div class="bar-chart" id="bc"></div>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <div class="fpill active" onclick="FH('all',this)">All</div>
+    <div class="fpill" onclick="FH('high',this)">High Risk</div>
+    <div class="fpill" onclick="FH('web',this)">Web</div>
+    <div class="fpill" onclick="FH('file',this)">File</div>
+  </div>
+  <div id="hist-list">
+    <div class="empty">
+      <div class="empty-ico">🗃</div>
+      <div class="empty-txt">No history yet.<br>Copy some text to start scanning.</div>
+    </div>
+  </div>
+  <button class="btn btn-red" style="width:100%;margin-top:4px" onclick="clearHist()">🗑 Clear All History</button>
+</div>
+
+<!-- ═══════════ CORPUS ═══════════ -->
+<div class="view" id="v-corpus">
+  <div class="card">
+    <div class="sec" style="margin-bottom:10px">
+      <span>Reference Files</span>
+      <span id="corp-count" style="color:var(--grn);font-size:.6rem">0 files</span>
+    </div>
+    <div id="corp-list"><div style="font-size:.66rem;color:var(--t3)">Loading…</div></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-ghost" style="flex:1" onclick="ipc('open-corpus')">📂 Open Folder</button>
+    <button class="btn btn-ghost" style="flex:1" onclick="ipc('reload-corpus')">🔄 Reload</button>
+  </div>
+  <div class="card" style="font-size:.67rem;color:var(--t2);line-height:1.9">
+    <div class="sec" style="margin-bottom:8px">How to add documents</div>
+    1. Click <b>Open Folder</b><br>
+    2. Drop any <code style="background:var(--bg3);padding:1px 6px;border-radius:4px">.txt</code> file into the corpus folder<br>
+    3. Click <b>Reload Corpus</b><br>
+    4. ZERO will use it for all future scans
+  </div>
+  <div id="corp-para" style="text-align:center;font-size:.59rem;color:var(--t3)"></div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════ SCRIPT ═════ -->
+<script>
+// ── Bridge to main process (via contextBridge preload) ──
+const { ipcRenderer } = window.__ZERO_BRIDGE__;
+
+function ipc(ch, ...args) { ipcRenderer.send(ch, ...args); }
+async function invoke(ch, ...args) { return ipcRenderer.invoke(ch, ...args); }
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let curText     = '';
+let curSents    = [];
+let curScore    = 0;
+let localScore  = 0;
+let curFile     = 'Clipboard';
+let curDNA      = null;
+let webLink     = '';
+let webTitle    = '';
+let webSnippet  = '';
+let curCites    = null;
+let curRWSent   = '';
+let citeMode    = 'apa';
+let citeData    = null;
+let allHist     = [];
+let histFilt    = 'all';
+
+// key state (mirrors main process)
+let hasSerper   = false;
+let hasAI       = false;
+
+// ── KEY MODAL ─────────────────────────────────────────────────────────────────
+async function openKeyModal() {
+  // Load current masked values from main
+  const keys = await invoke('get-api-keys');
+  const si = document.getElementById('serper-input');
+  const ai = document.getElementById('anthropic-input');
+
+  // Populate placeholders with masked value if already configured, else blank
+  si.value = '';
+  ai.value = '';
+  si.placeholder = keys.serperConfigured    ? keys.serperMasked    || '••••••••  (already set — paste to replace)' : 'sk-xxxxxxxxxxxxxxxxxxxxxxxx';
+  ai.placeholder = keys.anthropicConfigured ? keys.anthropicMasked || '••••••••  (already set — paste to replace)' : 'sk-ant-xxxxxxxxxxxxxxxxxxxxxxxx';
+
+  // Update badges
+  setBadge('serper-badge',    keys.serperConfigured);
+  setBadge('anthropic-badge', keys.anthropicConfigured);
+
+  // Clear any previous status
+  showModalStatus('', '');
+
+  document.getElementById('key-modal').classList.add('show');
+}
+
+function closeKeyModal() {
+  document.getElementById('key-modal').classList.remove('show');
+}
+
+// Close on overlay click
+document.getElementById('key-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeKeyModal();
+});
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeKeyModal();
+});
+
+function setBadge(id, configured) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (configured) {
+    el.textContent = '✓ Set';
+    el.className = 'key-label-badge configured';
+  } else {
+    el.textContent = 'Not set';
+    el.className = 'key-label-badge missing';
+  }
+}
+
+function onKeyInput(inputEl, badgeId) {
+  const hasVal = inputEl.value.trim().length > 0;
+  inputEl.classList.toggle('has-value', hasVal);
+  // Don't change badge until save
+}
+
+function toggleVis(inputId, btnId) {
+  const inp = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    inp.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
+function showModalStatus(type, msg) {
+  const el = document.getElementById('modal-status');
+  if (!msg) { el.classList.remove('show','ok','err'); return; }
+  el.className = 'modal-status show ' + type;
+  el.textContent = msg;
+}
+
+async function saveKeys() {
+  const serperVal    = document.getElementById('serper-input').value.trim();
+  const anthropicVal = document.getElementById('anthropic-input').value.trim();
+
+  // If both inputs are empty, user didn't type anything — nothing to change
+  if (!serperVal && !anthropicVal) {
+    showModalStatus('err', 'Paste at least one key to save, or click Clear to remove keys.');
+    return;
+  }
+
+  // Fetch current state so we can preserve whichever key wasn't changed
+  const current = await invoke('get-api-keys');
+
+  // A blank field means "keep existing key" — only overwrite if they typed something
+  const finalSerper    = serperVal    || (current.serperConfigured    ? '__keep__' : '');
+  const finalAnthropic = anthropicVal || (current.anthropicConfigured ? '__keep__' : '');
+
+  const res = await invoke('save-api-keys', {
+    serperKey:    finalSerper    === '__keep__' ? null : finalSerper,
+    anthropicKey: finalAnthropic === '__keep__' ? null : finalAnthropic
+  });
+
+  if (res.ok) {
+    showModalStatus('ok', '✓ Keys saved successfully.');
+    setBadge('serper-badge',    !!(serperVal || current.serperConfigured));
+    setBadge('anthropic-badge', !!(anthropicVal || current.anthropicConfigured));
+    document.getElementById('serper-input').value    = '';
+    document.getElementById('anthropic-input').value = '';
+    setTimeout(() => closeKeyModal(), 1200);
+  } else {
+    showModalStatus('err', 'Failed to save. Check app permissions.');
+  }
+}
+
+async function clearKeys() {
+  if (!confirm('Remove all saved API keys from ZERO?')) return;
+  const res = await invoke('clear-api-keys');
+  if (res.ok) {
+    showModalStatus('ok', '✓ Keys cleared.');
+    setBadge('serper-badge',    false);
+    setBadge('anthropic-badge', false);
+    document.getElementById('serper-input').value    = '';
+    document.getElementById('anthropic-input').value = '';
+    document.getElementById('serper-input').placeholder    = 'sk-xxxxxxxxxxxxxxxxxxxxxxxx';
+    document.getElementById('anthropic-input').placeholder = 'sk-ant-xxxxxxxxxxxxxxxxxxxxxxxx';
+  } else {
+    showModalStatus('err', 'Failed to clear keys.');
+  }
+}
+
+// Update the header key-dot and nokey-warn banner
+function updateKeyUI(serperOk, aiOk) {
+  hasSerper = serperOk;
+  hasAI     = aiOk;
+  const dot = document.getElementById('key-dot');
+  dot.classList.toggle('active', serperOk || aiOk);
+  // Show no-key warning only if serper not set (it's the critical one for web scan)
+  document.getElementById('nokey-warn').classList.toggle('show', !serperOk);
+  // Update scan button label
+  const sb = document.getElementById('scan-btn');
+  if (sb) sb.title = serperOk ? 'Search Google for matching content' : 'Add a Serper API key to enable';
+}
+
+// ── IPC: keys-updated (from main after save/clear) ────────────────────────────
+ipcRenderer.on('keys-updated', (d) => {
+  updateKeyUI(d.serperConfigured, d.anthropicConfigured);
+});
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
+function ST(el) {
+  const tab = el.dataset.tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('v-' + tab).classList.add('active');
+  if (tab === 'hist')  loadHistory();
+  if (tab === 'heat' && curText) renderHeatmap();
+}
+
+function goToDiff() {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelector('[data-tab="diff"]').classList.add('active');
+  document.getElementById('v-diff').classList.add('active');
+}
+
+// ── SCORE HELPERS ─────────────────────────────────────────────────────────────
+const sC = s => s > 50 ? 'var(--red)' : s > 15 ? 'var(--amb)' : 'var(--grn)';
+const sK = s => s > 50 ? 'high' : s > 15 ? 'med' : 'low';
+const sL = s => s > 50 ? 'HIGH RISK' : s > 15 ? 'MODERATE' : 'CLEAN';
+
+function esc(t) {
+  return String(t)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function beep(f) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = f;
+    g.gain.setValueAtTime(.05, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .35);
+    o.start(); o.stop(ctx.currentTime + .35);
+  } catch {}
+}
+
+// ── SCORE RING ────────────────────────────────────────────────────────────────
+function updateRing(score, prefix) {
+  const offset = 196 - (score / 100) * 196;
+  const c = sC(score);
+  document.getElementById('ring-fill').style.strokeDashoffset = offset;
+  document.getElementById('ring-fill').style.stroke = c;
+  document.getElementById('ring-n').innerText  = score + '%';
+  document.getElementById('ring-n').style.color = c;
+  document.getElementById('s-stat').innerText  = (prefix ? prefix + ' · ' : '') + sL(score);
+  document.getElementById('s-stat').style.color = c;
+  document.getElementById('s-sub').innerText   =
+    score > 50 ? 'Likely plagiarised — review sentences below'
+               : score > 15 ? 'Some similar phrasing found' : 'Appears original';
+  document.getElementById('s-b').style.width   = score + '%';
+  document.getElementById('s-b').style.background = c;
+  if (score > 50) beep(700);
+}
+
+// ── BEFORE/AFTER COMPARE ──────────────────────────────────────────────────────
+function showCompare(local, web) {
+  document.getElementById('cmp-card').classList.add('show');
+  setTimeout(() => {
+    const lEl = document.getElementById('cmp-l');
+    const wEl = document.getElementById('cmp-w');
+    lEl.style.height = Math.max(4, (local / 100) * 100) + '%';
+    lEl.style.background = sC(local);
+    wEl.style.height = Math.max(4, (web / 100) * 100) + '%';
+    wEl.style.background = sC(web);
+  }, 80);
+  document.getElementById('cmp-lp').innerText = local + '%';
+  document.getElementById('cmp-lp').style.color = sC(local);
+  document.getElementById('cmp-wp').innerText = web + '%';
+  document.getElementById('cmp-wp').style.color = sC(web);
+
+  const diff = web - local;
+  const dEl  = document.getElementById('cmp-diff');
+  dEl.innerText = (diff > 0 ? '+' : '') + diff + '%';
+  dEl.style.background = diff > 0 ? 'var(--rb)' : diff < 0 ? 'var(--gb)' : 'var(--bg3)';
+  dEl.style.color      = diff > 0 ? 'var(--red)' : diff < 0 ? 'var(--grn)' : 'var(--t2)';
+
+  const v = document.getElementById('cmp-verdict');
+  const ins = document.getElementById('cmp-ins');
+  if (web > 50) {
+    v.innerText = '⚠ Confirmed'; v.style.color = 'var(--red)';
+    ins.innerText = 'Web scan confirmed plagiarism. A close match was found online.';
+  } else if (diff >= 10) {
+    v.innerText = '↑ Higher online'; v.style.color = 'var(--amb)';
+    ins.innerText = 'Not flagged locally, but Google found similar content. Consider rewriting.';
+  } else if (diff < 0) {
+    v.innerText = '↓ Lower online'; v.style.color = 'var(--grn)';
+    ins.innerText = 'Local corpus was stricter. No close online source found — likely original.';
+  } else {
+    v.innerText = '✓ Consistent'; v.style.color = 'var(--t2)';
+    ins.innerText = 'Both local and web scores agree. The result is reliable.';
+  }
+}
+
+// ── SENTENCE LIST ─────────────────────────────────────────────────────────────
+function renderSents(list, containerId) {
+  const el = document.getElementById(containerId);
+  if (!list || !list.length) { el.innerHTML = ''; return; }
+  el.innerHTML = list.map((s, i) => `
+    <div class="sent-row ${sK(s.score)}" style="animation-delay:${i * .04}s"
+      onclick="reqRW(${JSON.stringify(s.text)})">
+      <span class="sent-txt">${esc(s.text)}</span>
+      <span class="bdg ${sK(s.score)}">${s.score}%</span>
+    </div>`).join('');
+}
+
+// ── DIFF VIEW ─────────────────────────────────────────────────────────────────
+function buildDiff(userText, snippet) {
+  if (!snippet || snippet.length < 5) return;
+  const sw = new Set(snippet.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length >= 5));
+  const uw = new Set(userText.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length >= 5));
+  function highlight(text, matchSet, cls) {
+    return esc(text).replace(/\b(\w{5,})\b/g, m =>
+      matchSet.has(m.toLowerCase()) ? `<span class="${cls}">${m}</span>` : m
+    );
+  }
+  document.getElementById('diff-l').innerHTML = highlight(userText, sw, 'dm');
+  document.getElementById('diff-r').innerHTML = highlight(snippet,  uw, 'ds');
+  document.getElementById('diff-wrap').classList.add('show');
+  document.getElementById('diff-empty').style.display = 'none';
+  document.getElementById('diff-btn').disabled = false;
+}
+
+// ── DNA ───────────────────────────────────────────────────────────────────────
+function renderDNA(dna) {
+  if (!dna) return;
+  curDNA = dna;
+  const offset = 145 - (dna.dnaScore / 100) * 145;
+  document.getElementById('dna-rf').style.strokeDashoffset = offset;
+  document.getElementById('dna-n').innerText = dna.dnaScore + '%';
+  document.getElementById('dm-sl').innerText  = dna.avgSentLen + ' words';
+  document.getElementById('dm-ttr').innerText = dna.ttr + '%';
+  document.getElementById('dm-pv').innerText  = dna.passivePct + '%';
+  document.getElementById('dm-pv').style.color =
+    dna.passivePct > 40 ? 'var(--red)' : dna.passivePct > 20 ? 'var(--amb)' : 'var(--t1)';
+  document.getElementById('dm-wl').innerText  = dna.avgWordLen;
+  document.getElementById('dm-pd').innerText  = dna.punctDensity + '%';
+  document.getElementById('dm-tr').innerText  = dna.transPct + '%';
+  document.getElementById('dna-desc').innerText =
+    dna.dnaScore > 70 ? 'Strong unique writing style detected.' :
+    dna.dnaScore > 40 ? 'Moderately distinctive. Some common patterns.' :
+                        'Low distinctiveness — may rely on common phrasing.';
+  const flag = document.getElementById('dna-flag');
+  dna.passivePct > 40 || dna.ttr < 30 ? flag.classList.add('show') : flag.classList.remove('show');
+}
+
+// ── TIMELINE ──────────────────────────────────────────────────────────────────
+function renderTimeline(tl) {
+  const chart = document.getElementById('tl-chart');
+  if (!tl || !tl.length) { chart.innerHTML = ''; return; }
+  document.getElementById('tl-info').innerText = tl.length + ' sentences';
+  chart.innerHTML = tl.map(t => `
+    <div class="tl-bar" style="height:${Math.max(3,(t.score/100)*50)}px;background:${sC(t.score)};opacity:.85"
+      onmouseenter="document.getElementById('tl-tip').innerText='${esc(t.text).replace(/'/g,"\\'").replace(/\n/g,' ')} (${t.score}%)'"
+      onmouseleave="document.getElementById('tl-tip').innerText='Hover a bar to preview the sentence'">
+    </div>`).join('');
+}
+
+// ── HEATMAP ───────────────────────────────────────────────────────────────────
+async function renderHeatmap() {
+  const wrap = document.getElementById('hm-wrap');
+  if (!curText) {
+    wrap.innerHTML = '<span style="color:var(--t3);font-size:.67rem">Copy any text — the heatmap will appear here.</span>';
+    return;
+  }
+  const tokens = await invoke('get-heatmap', curText);
+  if (!tokens || !tokens.length) return;
+  wrap.innerHTML = tokens.map(t => {
+    if (/^\s+$/.test(t.token) || !t.token) return t.token;
+    if (t.risk === 0) return esc(t.token);
+    if (t.risk === 3) return `<span class="hw3" title="Risk score: ${t.score}" onclick="reqRW(${JSON.stringify(t.token)})">${esc(t.token)}</span>`;
+    return `<span class="hw${t.risk}" title="Risk score: ${t.score}">${esc(t.token)}</span>`;
+  }).join('');
+}
+
+// ── PARAPHRASE ────────────────────────────────────────────────────────────────
+function renderParaphrase(para) {
+  if (!para) return;
+  document.getElementById('para-card').style.display = 'block';
+  const c = para.score > 60 ? 'var(--red)' : para.score > 30 ? 'var(--amb)' : 'var(--grn)';
+  document.getElementById('para-pct').innerText = para.score + '%';
+  document.getElementById('para-pct').style.color = c;
+  document.getElementById('para-b').style.width = para.score + '%';
+  document.getElementById('para-b').style.background = c;
+  document.getElementById('para-msg').innerText =
+    para.score > 60 ? 'High paraphrase risk — text may be reworded from source.' :
+    para.score > 30 ? 'Some keyword overlap with source — review highlighted words.' :
+                      'Low paraphrase risk — vocabulary appears original.';
+  document.getElementById('para-kws').innerHTML =
+    (para.matchedKeywords || []).map(k => `<div class="kw-chip">${esc(k)}</div>`).join('');
+}
+
+// ── CITATIONS ─────────────────────────────────────────────────────────────────
+function renderCitations(cites) {
+  if (!cites) return;
+  citeData = cites; curCites = cites;
+  document.getElementById('cite-card').classList.add('show');
+  setCite('apa', document.querySelector('.cite-tab'));
+}
+function setCite(mode, el) {
+  citeMode = mode;
+  document.querySelectorAll('.cite-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (!citeData) return;
+  document.getElementById('cite-txt').innerText = citeData[mode] || '';
+}
+function copyCite() {
+  const txt = document.getElementById('cite-txt').innerText;
+  navigator.clipboard.writeText(txt).catch(() => {});
+  const b = document.querySelector('.cite-copy');
+  b.innerText = '✓ Copied!';
+  setTimeout(() => { b.innerText = 'Copy Citation'; }, 2000);
+}
+
+// ── AI REWRITE ────────────────────────────────────────────────────────────────
+async function reqRW(sentence) {
+  curRWSent = sentence;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelector('[data-tab="scan"]').classList.add('active');
+  const scanView = document.getElementById('v-scan');
+  scanView.classList.add('active');
+
+  const panel = document.getElementById('rw-panel');
+  panel.classList.add('show');
+  document.getElementById('rw-orig').innerText =
+    '"' + sentence.substring(0, 120) + (sentence.length > 120 ? '…' : '') + '"';
+  document.getElementById('rw-load').classList.add('show');
+  document.getElementById('rw-res').classList.remove('show');
+  document.getElementById('rw-btns').style.display = 'none';
+  setTimeout(() => { scanView.scrollTop = scanView.scrollHeight; }, 100);
+
+  const rewritten = await invoke('ai-rewrite', sentence);
+  document.getElementById('rw-load').classList.remove('show');
+  document.getElementById('rw-res').innerText = rewritten;
+  document.getElementById('rw-res').classList.add('show');
+  document.getElementById('rw-btns').style.display = 'flex';
+  setTimeout(() => { scanView.scrollTop = scanView.scrollHeight; }, 150);
+}
+function copyRW() {
+  const txt = document.getElementById('rw-res').innerText;
+  navigator.clipboard.writeText(txt).catch(() => {});
+  const b = document.querySelector('#rw-btns .btn-grn');
+  b.innerText = '✓ Copied!';
+  setTimeout(() => { b.innerText = 'Copy'; }, 2000);
+}
+
+// ── LINK OPENER ───────────────────────────────────────────────────────────────
+function openSrcLink() {
+  const url = document.getElementById('src-lnk').innerText.trim();
+  if (url.startsWith('http')) ipc('open-link', url);
+}
+
+// ── IPC: APP READY ────────────────────────────────────────────────────────────
+ipcRenderer.on('app-ready', (d) => {
+  const pill = document.getElementById('db-pill');
+  if (d.storageType === 'sqlite') {
+    pill.classList.remove('hpill-j');
+    pill.classList.add('hpill-s');
+    pill.innerText = 'SQLite';
+  }
+  updateCorpusUI(d.corpusCount, d.corpusFiles, d.corpusFileCount);
+  allHist = d.history || [];
+  updateHistBadge();
+  updateStatsUI(d.stats);
+  // ── Initialize key UI state ──
+  updateKeyUI(d.serperConfigured || false, d.anthropicConfigured || false);
+});
+
+// ── IPC: CLIPBOARD UPDATE ─────────────────────────────────────────────────────
+ipcRenderer.on('clipboard-update', (d) => {
+  curText    = d.text;
+  curSents   = d.sentenceResults || [];
+  curScore   = d.score;
+  localScore = d.score;
+  curFile    = 'Clipboard';
+
+  updateRing(d.score, 'Local');
+  renderDNA(d.dna);
+  if (d.timeline) renderTimeline(d.timeline);
+
+  if (curSents.length) {
+    document.getElementById('sent-panel').style.display = 'block';
+    renderSents(curSents, 'sent-list');
+  }
+
+  document.getElementById('src-card').classList.remove('show');
+  document.getElementById('diff-wrap').classList.remove('show');
+  document.getElementById('diff-empty').style.display = '';
+  document.getElementById('diff-btn').disabled = true;
+  document.getElementById('rep-btn').disabled  = false;
+  document.getElementById('cmp-card').classList.remove('show');
+  document.getElementById('para-card').style.display = 'none';
+  document.getElementById('cite-card').classList.remove('show');
+  document.getElementById('diff-sents').style.display = 'none';
+  webSnippet = '';
+
+  allHist.unshift({
+    text: d.text, score: d.score, type: 'local',
+    words: d.text.trim().split(/\s+/).length,
+    ts: new Date().toLocaleString(), web_title: ''
+  });
+  if (allHist.length > 500) allHist.length = 500;
+  updateHistBadge();
+});
+
+// ── IPC: CORPUS UPDATED ───────────────────────────────────────────────────────
+ipcRenderer.on('corpus-updated', (d) => {
+  updateCorpusUI(d.count, d.files, d.fileCount);
+});
+
+ipcRenderer.on('history-cleared', () => {
+  allHist = [];
+  renderHistList();
+  updateHistBadge();
+});
+
+// ── CORPUS UI ─────────────────────────────────────────────────────────────────
+function updateCorpusUI(count, files, fileCount) {
+  document.getElementById('corp-stat').innerText   = `✓ ${count} paragraphs loaded`;
+  document.getElementById('corp-para').innerText   = `${count} paragraphs · ${fileCount || 0} files`;
+  document.getElementById('corp-count').innerText  = (fileCount || 0) + ' files';
+  const fl = document.getElementById('corp-list');
+  fl.innerHTML = (!files || !files.length)
+    ? '<div style="font-size:.66rem;color:var(--t3)">No files found.</div>'
+    : files.map(f => `<div class="corp-file"><span>📄</span><span>${esc(f)}</span></div>`).join('');
+}
+
+// ── DEEP WEB SCAN ─────────────────────────────────────────────────────────────
+document.getElementById('scan-btn').addEventListener('click', async () => {
+  if (!curText) return;
+
+  // If no Serper key, open the key modal instead of scanning
+  if (!hasSerper) {
+    openKeyModal();
+    return;
+  }
+
+  const btn = document.getElementById('scan-btn');
+  const ld  = document.getElementById('scan-load');
+  btn.disabled = true;
+  ld.classList.add('show');
+
+  try {
+    const r = await invoke('web-scan', curText);
+    ld.classList.remove('show');
+    btn.disabled = false;
+
+    // If main process says no key (race condition or key removed mid-session)
+    if (r.noKey) {
+      openKeyModal();
+      return;
+    }
+
+    curScore  = r.score;
+    updateRing(r.score, 'Web');
+    showCompare(localScore, r.score);
+
+    webLink    = r.link    || '';
+    webTitle   = r.title   || '';
+    webSnippet = r.snippet || '';
+
+    if (r.link && r.link.startsWith('http')) {
+      document.getElementById('src-ttl').innerText = r.title || '';
+      document.getElementById('src-lnk').innerText = r.link;
+      document.getElementById('src-card').classList.add('show');
+
+      const moreEl = document.getElementById('src-more');
+      if (r.allResults && r.allResults.length > 1) {
+        moreEl.innerHTML = '<div style="font-size:.57rem;color:var(--t3);margin-bottom:4px">Other matches:</div>' +
+          r.allResults.slice(1).map(x => {
+            const safeUrl = esc(x.link || '');
+            return `<div class="src-item" onclick="ipc('open-link','${safeUrl}')">${esc(x.title || x.link)}</div>`;
+          }).join('');
+      } else {
+        moreEl.innerHTML = '';
+      }
+    }
+
+    if (r.sentenceResults && r.sentenceResults.length) {
+      curSents = r.sentenceResults;
+      document.getElementById('sent-panel').style.display = 'block';
+      renderSents(curSents, 'sent-list');
+      document.getElementById('diff-sents').style.display = 'block';
+      renderSents(curSents, 'diff-sl');
+    }
+
+    if (r.snippet && r.snippet.length > 5) buildDiff(curText, r.snippet);
+    if (r.paraphrase) renderParaphrase(r.paraphrase);
+    if (r.citations)  renderCitations(r.citations);
+
+    document.getElementById('rep-btn').disabled = false;
+
+    allHist.unshift({
+      text: curText, score: r.score, type: 'web',
+      words: curText.trim().split(/\s+/).length,
+      ts: new Date().toLocaleString(), web_title: r.title || ''
+    });
+    if (allHist.length > 500) allHist.length = 500;
+    updateHistBadge();
+
+  } catch (err) {
+    console.error('[SCAN]', err);
+    ld.classList.remove('show');
+    btn.disabled = false;
+  }
+});
+
+// ── EXPORT REPORT ─────────────────────────────────────────────────────────────
+async function exportReport() {
+  const r = await invoke('export-report', {
+    text: curText, score: curScore, localScore, fileName: curFile,
+    sentenceResults: curSents, webLink, webTitle, webSnippet,
+    dna: curDNA, citations: curCites, scanTime: new Date().toLocaleString()
+  });
+  if (r.saved) {
+    const b = document.getElementById('rep-btn');
+    b.innerText = '✓ Saved!';
+    setTimeout(() => { b.innerText = '⬇ Report'; }, 2500);
+  }
+}
+
+// ── FILE TAB ──────────────────────────────────────────────────────────────────
+function fileDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('over');
+  if (e.dataTransfer.files.length) doFile(e.dataTransfer.files[0].path);
+}
+async function pickFile() {
+  const p = await invoke('open-file-dialog');
+  if (p) doFile(p);
+}
+async function doFile(fp) {
+  const ld   = document.getElementById('file-load');
+  const area = document.getElementById('file-result');
+  area.innerHTML = '';
+  ld.classList.add('show');
+  try {
+    const r = await invoke('scan-file', fp);
+    ld.classList.remove('show');
+    if (r.error) {
+      area.innerHTML = `<div class="card" style="color:var(--red);font-size:.7rem">${esc(r.error)}</div>`;
+      return;
+    }
+    curText    = r.text;
+    curSents   = r.sentenceResults || [];
+    curScore   = r.score;
+    localScore = r.score;
+    curFile    = r.fileName;
+    if (r.dna) renderDNA(r.dna);
+    if (r.timeline) renderTimeline(r.timeline);
+    updateRing(r.score, r.fileType);
+    document.getElementById('rep-btn').disabled = false;
+    if (curSents.length) {
+      document.getElementById('sent-panel').style.display = 'block';
+      renderSents(curSents, 'sent-list');
+    }
+    const ext  = r.fileType;
+    const ib   = ext === 'PDF' ? 'rgba(255,61,90,.12)' : ext === 'DOCX' ? 'rgba(77,143,255,.12)' : 'rgba(0,224,150,.1)';
+    const ic   = ext === 'PDF' ? 'var(--red)'  : ext === 'DOCX' ? 'var(--blue)' : 'var(--grn)';
+    area.innerHTML = `
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:32px;height:32px;border-radius:8px;background:${ib};color:${ic};display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;flex-shrink:0">${esc(ext)}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.74rem;font-weight:700;word-break:break-all">${esc(r.fileName)}</div>
+            <div style="font-size:.6rem;color:var(--t3);margin-top:2px">${r.pages} pages · ${(r.wordCount || 0).toLocaleString()} words</div>
+          </div>
+          <div style="font-family:var(--mono);font-size:1.3rem;font-weight:700;color:${sC(r.score)}">${r.score}%</div>
+        </div>
+        <div class="fi-grid">
+          <div class="fi-item"><div class="fi-l">Risk</div><div class="fi-v" style="color:${sC(r.score)}">${sL(r.score)}</div></div>
+          <div class="fi-item"><div class="fi-l">Words</div><div class="fi-v">${(r.wordCount || 0).toLocaleString()}</div></div>
+          <div class="fi-item"><div class="fi-l">Sentences</div><div class="fi-v">${(r.sentenceResults || []).length}</div></div>
+        </div>
+        <div class="sec" style="margin-bottom:7px">Sentence Breakdown</div>
+        <div class="sent-list" id="file-sl"></div>
+        <div class="btn-row" style="margin-top:10px">
+          <button class="btn btn-pri"   style="font-size:.6rem" onclick="document.querySelector('[data-tab=scan]').click()">🔍 Web Scan</button>
+          <button class="btn btn-grn"   style="font-size:.6rem" onclick="document.querySelector('[data-tab=dna]').click()">🧬 DNA</button>
+          <button class="btn btn-ghost" style="font-size:.6rem" onclick="exportReport()">⬇ Report</button>
+        </div>
+      </div>`;
+    renderSents(r.sentenceResults, 'file-sl');
+    allHist.unshift({ text: r.text, score: r.score, type: 'file', words: r.wordCount || 0, ts: new Date().toLocaleString(), web_title: '' });
+    updateHistBadge();
+  } catch (err) {
+    ld.classList.remove('show');
+    area.innerHTML = `<div class="card" style="color:var(--red);font-size:.7rem">Error: ${esc(err.message)}</div>`;
+  }
+}
+
+// ── BATCH SCAN ────────────────────────────────────────────────────────────────
+async function pickFolder() {
+  const fp = await invoke('open-folder-dialog');
+  if (!fp) return;
+  const ld   = document.getElementById('batch-load');
+  const area = document.getElementById('batch-result');
+  area.innerHTML = '';
+  ld.classList.add('show');
+  try {
+    const rs = await invoke('batch-scan', fp);
+    ld.classList.remove('show');
+    if (!rs || !rs.length) {
+      area.innerHTML = '<div class="card" style="font-size:.66rem;color:var(--t3)">No supported files found in that folder.</div>';
+      return;
+    }
+    area.innerHTML = `<div class="sec">Batch Results (${rs.length} files)</div>` +
+      rs.map((r, i) => `
+        <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:8px;padding:10px 13px;display:flex;align-items:center;gap:10px;border-left:3px solid ${sC(r.score||0)};animation:up .3s ease ${i*.06}s both">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.7rem;color:var(--t1);word-break:break-all">${esc(r.file)}</div>
+            <div style="font-size:.59rem;color:var(--t3);margin-top:2px">${(r.wordCount||0).toLocaleString()} words · ${sL(r.score||0)}${r.error ? ' · ⚠ ' + esc(r.error) : ''}</div>
+          </div>
+          <div style="font-family:var(--mono);font-size:.82rem;font-weight:700;color:${sC(r.score||0)}">${r.score||0}%</div>
+        </div>`).join('');
+  } catch (err) {
+    ld.classList.remove('show');
+    area.innerHTML = `<div class="card" style="font-size:.66rem;color:var(--red)">Failed: ${esc(err.message)}</div>`;
+  }
+}
+
+// ── HISTORY ───────────────────────────────────────────────────────────────────
+async function loadHistory() {
+  allHist = await invoke('get-history', 100);
+  renderHistList();
+  const s = await invoke('get-stats');
+  updateStatsUI(s);
+  updateHistBadge();
+}
+
+function updateStatsUI(s) {
+  if (!s) return;
+  document.getElementById('st-tot').innerText = s.total || 0;
+  document.getElementById('st-avg').innerText = (s.avg_score || 0) + '%';
+  document.getElementById('st-hi').innerText  = s.high_risk || 0;
+  document.getElementById('st-cl').innerText  = s.clean || 0;
+  const recent = (allHist || []).slice(0, 20).reverse();
+  const mx = Math.max(...recent.map(h => h.score || 0), 1);
+  document.getElementById('bc').innerHTML = recent.map(h =>
+    `<div class="brc" style="height:${Math.max(3,((h.score||0)/mx)*42)}px;background:${sC(h.score||0)};opacity:.85" title="${h.score||0}%"></div>`
+  ).join('');
+}
+
+function renderHistList() {
+  const el = document.getElementById('hist-list');
+  let items = allHist;
+  if (histFilt === 'high')  items = items.filter(h => (h.score||0) > 50);
+  if (histFilt === 'web')   items = items.filter(h => (h.type||h.scan_type) === 'web');
+  if (histFilt === 'file')  items = items.filter(h => (h.type||h.scan_type) === 'file');
+  if (!items.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ico">🗃</div><div class="empty-txt">No records match this filter.</div></div>';
+    return;
+  }
+  el.innerHTML = items.slice(0, 50).map((h, i) => {
+    const t = h.type || h.scan_type || 'local';
+    const ts = h.ts || h.created_at || '';
+    const w  = h.words || h.word_count || 0;
+    return `
+      <div class="hist-item" style="border-left-color:${sC(h.score||0)};animation-delay:${i*.03}s">
+        <div style="flex:1;min-width:0">
+          <div class="hi-txt">${esc((h.text||'').substring(0,48)+(h.text&&h.text.length>48?'…':''))}</div>
+          <div class="hi-tm">${esc(ts)} · ${w}w · <span style="color:${sC(h.score||0)}">${esc(t)}</span></div>
+          ${h.web_title ? `<div style="font-size:.57rem;color:var(--t3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(h.web_title)}</div>` : ''}
+        </div>
+        <div class="hi-sc" style="color:${sC(h.score||0)}">${h.score||0}%</div>
+      </div>`;
+  }).join('');
+}
+
+function FH(type, el) {
+  histFilt = type;
+  document.querySelectorAll('.fpill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderHistList();
+}
+
+function updateHistBadge() {
+  document.getElementById('hn').innerText = allHist.length || 0;
+}
+
+async function clearHist() {
+  if (!confirm('Clear all ZERO scan history? This cannot be undone.')) return;
+  await invoke('clear-history');
+  allHist = [];
+  renderHistList();
+  updateHistBadge();
+  updateStatsUI({ total: 0, avg_score: 0, high_risk: 0, clean: 0 });
+}
+</script>
+</body>
+</html>
