@@ -2,9 +2,6 @@
 
 A cross-platform desktop application for detecting plagiarism in academic documents using NLP-based text analysis.
 
-## Screenshots
-
-> Upload Document | Analysis Report | Similarity Score
 
 ## Features
 
