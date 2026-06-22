@@ -90,3 +90,4 @@ Download the latest `.exe` from the [Releases](https://github.com/vikas1311code/
 update
 update
 update
+update
