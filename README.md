@@ -88,3 +88,4 @@ Download the latest `.exe` from the [Releases](https://github.com/vikas1311code/
 **Vikas Pandey** — B.Tech CSE, IIIT Manipur  
 [GitHub](https://github.com/vikas1311code) · [Email](mailto:vikaspandey131118@gmail.com) · [LinkedIn](https://linkedin.com/in/vikas-pandey-306792411)
 update
+update
